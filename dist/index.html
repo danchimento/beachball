@@ -34,6 +34,10 @@
                 line-height: 20px;;
             }
 
+            #mobile-only {
+                display: none;
+            }
+
             @media only screen and (max-width: 800px) {
                 #mobile-only {
                     display: block;
@@ -44,16 +48,21 @@
                 }
             }
 
+            a {
+                color: white;
+            }
+
         </style>
         </style>
     </head>
     <body>
 
-        <div id='mobile-only'>
+        <div id='mobile-only' class="text">
+            <img src="assets/pc.png" width="200"/>
             <h3>This game is only available on desktop</h3>
         </div>
 
-        <div id="deskop-only">
+        <div id="desktop-only">
             <div id="game"></div>
             <div class="text">
                 <div>Move with arrow keys</div>
@@ -64,8 +73,8 @@
                 
                 <div>Game by Dan Chimento</div>
                 <div>Art by ___</div>
-                <div>Sounds by LittleRobotSoundFactory</div>
-
+                <div>Sounds by <a href="https://freesound.org/people/LittleRobotSoundFactory/">LittleRobotSoundFactory</a></div>
+                <div>PC graphic by <a href='https://ya-webdesign.com'>https://ya-webdesign.com</a></div>
             </div>
         </div>
         <script src="bundle.js"></script>
