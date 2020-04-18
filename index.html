@@ -34,25 +34,45 @@
                 line-height: 20px;;
             }
 
+            #mobile-only {
+                display: none;
+            }
+
+            @media only screen and (max-width: 800px) {
+                #mobile-only {
+                    display: block;
+                }
+
+                #desktop-only {
+                    display: none;
+                }
+            }
+
         </style>
         </style>
     </head>
     <body>
 
-        <div id="game"></div>
-        <div class="text">
-            <div>Move with arrow keys</div>
-            <div>Toggle mute with M</div>
+        <div id='mobile-only' class="text">
+            <img src="assets/pc.jpg" />
+            <h3>This game is only available on desktop</h3>
         </div>
 
-        <div class="text">
-            
-            <div>Game by Dan Chimento</div>
-            <div>Art by ___</div>
-            <div>Sounds by LittleRobotSoundFactory</div>
+        <div id="desktop-only">
+            <div id="game"></div>
+            <div class="text">
+                <div>Move with arrow keys</div>
+                <div>Toggle mute with M</div>
+            </div>
 
+            <div class="text">
+                
+                <div>Game by Dan Chimento</div>
+                <div>Art by ___</div>
+                <div>Sounds by LittleRobotSoundFactory</div>
+
+            </div>
         </div>
-
         <script src="bundle.js"></script>
     </body>
 </html>

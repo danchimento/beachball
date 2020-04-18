@@ -243,7 +243,7 @@ export default class Scene1 extends Phaser.Scene {
         {
             this.setMute(false);
         } else {
-            this.muted = muted;
+            this.muted = muted == "true";
             this.setMute(this.muted);
         }
 
@@ -254,7 +254,7 @@ export default class Scene1 extends Phaser.Scene {
 
     setMute(muted) {
         this.sound.setMute(muted);
-        localStorage.setItem('muted', muted);
+        localStorage.setItem('muted', muted.toString());
     }
 
     update() {
