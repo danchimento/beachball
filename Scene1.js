@@ -23,6 +23,7 @@ export default class Scene1 extends Phaser.Scene {
 
         this.scoreText = null;
         this.highscoreText = null;
+        var muted = false;
 
         this.resetGame();
     }
@@ -236,6 +237,24 @@ export default class Scene1 extends Phaser.Scene {
         this.createScoreText();
         
         this.physics.add.collider(this.ball, this.joe, () => this.onBounce());
+
+        var muted = localStorage.getItem('muted');
+        if (muted == null)
+        {
+            this.setMute(false);
+        } else {
+            this.muted = muted;
+            this.setMute(this.muted);
+        }
+
+        this.input.keyboard.on("keydown_M", () => {
+            this.setMute(!this.sound.mute)
+        });
+    }
+
+    setMute(muted) {
+        this.sound.setMute(muted);
+        localStorage.setItem('muted', muted);
     }
 
     update() {
