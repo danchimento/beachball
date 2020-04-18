@@ -4,13 +4,14 @@ import PathFollowerPlugin from 'phaser3-rex-plugins/plugins/pathfollower-plugin.
 console.log("Initializing game...")
 new Phaser.Game({
     type: Phaser.AUTO,
+    parent: "game",
     width: 600,
     height: 600,
     backgroundColor: "#2B4570",
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true,
+         //   debug: true,
         }
     },
     plugins: {

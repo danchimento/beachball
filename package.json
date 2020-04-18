@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "webpack --watch",
+    "build": "webpack",
     "start": "webpack-dev-server --open"
   },
   "devDependencies": {

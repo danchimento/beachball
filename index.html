@@ -1,9 +1,57 @@
 <html>
     <head>
-        <title>Traffic Simulator</title>
+        <title>Cruise Director Joe</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+
+        <style>
+            @font-face {
+                font-family: "ponde";
+                src: url("assets/ponde.ttf");
+            }
+
+            html, body {
+                margin: 0;
+                padding: 30px;
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                justify-content: center;
+                background: #222;
+                color: white;
+                font-family: 'ponde';
+            }
+
+            #game {
+                border-radius: 10px;
+            }
+
+            .text {
+                margin-top: 20px;
+                text-align: center;
+                font-size: small;
+                line-height: 20px;;
+            }
+
+        </style>
+        </style>
     </head>
     <body>
+
+        <div id="game"></div>
+        <div class="text">
+            Move with arrow keys
+        </div>
+
+        <div class="text">
+            
+            <div>Game by Dan Chimento</div>
+            <div>Art by Dan Chimento</div>
+            <div>Sounds by LittleRobotSoundFactory</div>
+
+        </div>
+
         <script src="bundle.js"></script>
     </body>
 </html>
