@@ -64,6 +64,7 @@ export default class Scene1 extends Phaser.Scene {
     lose() {
         if (this.score > 0) {
             this.resetGame();
+            this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, this.getLosePhrase(), 0x000000, 1)
         }
 
         this.missSound.play();
@@ -332,5 +333,26 @@ export default class Scene1 extends Phaser.Scene {
         } else {
             this.gameStartText.setVisible((new Date()).getSeconds() % 2 == 0);
         }
+    }
+
+    getLosePhrase() {
+        var losePhrases = [
+            "Oh no!",
+            "Bummer.",
+            "Nuts!",
+            "Grrr...",
+            "Not again!",
+            "A for effort?",
+            "So close!",
+            "Aw man!",
+            "*sad face*",
+            "Missed.",
+            "My scores!",
+            "Noooo!",
+            "This is not easy.",
+        ]
+
+        var randomNumber = Math.floor(Math.random() * losePhrases.length);
+        return losePhrases[randomNumber];
     }
 }
