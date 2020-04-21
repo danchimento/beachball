@@ -22,6 +22,7 @@ export default class Scene1 extends Phaser.Scene {
         this.groundHeight = 100;
 
         this.scoreText = null;
+        this.lastScoreText = null;
         this.highscoreText = null;
         var muted = false;
 
@@ -29,6 +30,7 @@ export default class Scene1 extends Phaser.Scene {
         this.fontColor = "#000";
         this.textStyle = { color: this.fontColor, fontFamily: this.fontFamily }
 
+        this.lastScore = 0;
         this.gameStarted = false;
 
         this.birdSpeed = 60;
@@ -38,12 +40,12 @@ export default class Scene1 extends Phaser.Scene {
 
     resetGame() {
         this.speed = 400;
-        this.joeSpeed = 200;
+        this.joeSpeed = 300;
         this.ballVelocityAddition = .75;
         this.joeVelocityAddition = 1;
         this.score = 0;
-        this.ballBounciness = .75;
-        this.gravity = 400;
+        this.ballBounciness = .65;
+        this.gravity = 600;
         this.beatHighscore = false;
         this.hittingTimer = 0;
     }
@@ -57,17 +59,21 @@ export default class Scene1 extends Phaser.Scene {
     }
 
     incrementDifficulty() {
-        this.speed += 10;
-        this.ballVelocityAddition += .1;
+        this.speed += 15;
+        this.ballBounciness += .01;
+        //this.ballVelocityAddition += .1;
     }
 
     lose() {
         if (this.score > 0) {
+            this.lastScore = this.score;
             this.resetGame();
-            this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, this.getLosePhrase(), 0x000000, 1)
+            this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, this.getLosePhrase(), 0x000000, 2)
         }
 
-        this.missSound.play();
+        if (Math.abs(this.ball.body.deltaY()) > 1) {
+            this.missSound.play();
+        }
     }
 
     init() {
@@ -176,6 +182,7 @@ export default class Scene1 extends Phaser.Scene {
 
     createScoreText() {
         this.scoreText = this.add.text(10, 10, "Score: 0", this.textStyle);
+        this.lastScoreText = this.add.text(175, 10, "Last score: 0", this.textStyle);
         this.highscoreText = this.add.text(this.sys.game.config.width - 190, 10, "Highscore: " + localStorage.getItem('highscore'), this.textStyle);
         this.highscoreText.width = 400;
         this.highscoreText.setAlign("right");
@@ -303,6 +310,7 @@ export default class Scene1 extends Phaser.Scene {
         if (this.gameStarted) {
 
             this.joe.setVelocity(0);
+            this.ball.setBounce(this.ballBounciness);
 
             this.hittingTimer--;
             var runAnimation = this.hittingTimer <= 0 ? 'joe_run' : 'joe_run_hit';
@@ -329,6 +337,7 @@ export default class Scene1 extends Phaser.Scene {
             }
 
             this.scoreText.text = `Score: ${this.score}`
+            this.lastScoreText.text = `Last Score: ${this.lastScore}`
             this.highscoreText.text = `Highscore: ${this.highscore}`
         } else {
             this.gameStartText.setVisible((new Date()).getSeconds() % 2 == 0);

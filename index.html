@@ -56,11 +56,42 @@
                 color: white;
             }
 
+            #dev-tools {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: #222;
+                z-index: 1000;
+            }
+
+            #dev-tools p {
+                width: 500px;
+            }
+
+            #dev-tools.open {
+                display: flex;
+            }
+
+            #dev-tools.closed {
+                display: none;
+            }
+
         </style>
         </style>
     </head>
     <body>
-
+        <div id="dev-tools">
+            <p>Dear developers,</p>
+            <p>I made this game in like 4 hours and didn't have time to cheat-proof it.<br /></p>
+            <p>Be cool.</p>
+            <p>Sincerely,<br />Dan</p>
+        </div>
         <div id='mobile-only' class="text">
             <img src="assets/pc.png" width="200"/>
             <h3>This game is only available on desktop</h3>
@@ -83,6 +114,23 @@
                 <div>Inspired by <a href="http://homestarrunner.com/pop_tire.html">Homestar Runner's Pop Tire</a></div>
             </div>
         </div>
+        <script>
+            var checkStatus;
+            var element = new Image();
+            Object.defineProperty(element, 'id', {
+                get: function() {
+                    checkStatus='open';
+                    throw new Error("Dev tools checker");
+                }
+            });
+
+            requestAnimationFrame(function check() {
+                checkStatus = 'closed';
+                console.dir(element);
+                document.getElementById('dev-tools').className  = checkStatus;
+                requestAnimationFrame(check);
+            });
+        </script>
         <script src="bundle.js"></script>
     </body>
 </html>
