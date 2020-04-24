@@ -2,6 +2,10 @@
     <head>
         <title>Cruise Director Joe</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta property="og:title" content="Cruise Director Joe">
+        <meta property="og:description" content="Don't let the ball touch the ground!">
+        <meta property="og:image" content="http://chimento.co/games/joe/assets/share.png">
+        <meta property="og:url" content="http://chimento.co/games/joe">
 
         <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
 
@@ -9,6 +13,11 @@
             @font-face {
                 font-family: "ponde";
                 src: url("assets/ponde.ttf");
+            }
+
+            @font-face {
+                font-family: "goth";
+                src: url("assets/goth.otf") format("opentype");
             }
 
             html, body {
@@ -20,7 +29,7 @@
                 justify-content: center;
                 background: #222;
                 color: white;
-                font-family: 'ponde';
+                font-family: 'goth';
             }
 
             #game {
@@ -30,7 +39,7 @@
             .text {
                 margin-top: 20px;
                 text-align: center;
-                font-size: small;
+                
                 line-height: 20px;;
             }
 
@@ -54,6 +63,20 @@
 
             a {
                 color: white;
+            }
+
+            .overlay {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: #222;
+                z-index: 1000;
             }
 
             #dev-tools {
@@ -82,11 +105,21 @@
                 display: none;
             }
 
+            #ie-only {
+                display: none;
+            }
+
+            @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+                #ie-only {
+                    display: block
+                }
+            }
+
         </style>
         </style>
     </head>
     <body>
-        <div id="dev-tools">
+        <div id="dev-tools" class="overlay">
             <p>Dear developers,</p>
             <p>I made this game in like 4 hours and didn't have time to cheat-proof it.<br /></p>
             <p>Be cool.</p>
@@ -94,7 +127,16 @@
         </div>
         <div id='mobile-only' class="text">
             <img src="assets/pc.png" width="200"/>
-            <h3>This game is only available on desktop</h3>
+            <h3>This game is only available on desktop.</h3>
+        </div>
+
+        <div id="ie-only" class="overlay text">
+            <img src="assets/pc.png" width="200"/>
+            <h3>This game is not available on Internet Explorer.</h3>
+            <h3>Please use Chrome or Firefox.</h3>
+            <h3>...Or Edge. Or Safari.</h3>
+            <br />
+            <h3>Literally anything except Internet Explorer.</h3>
         </div>
 
         <div id="desktop-only">

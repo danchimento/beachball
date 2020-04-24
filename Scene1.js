@@ -4,36 +4,49 @@ export default class Scene1 extends Phaser.Scene {
 
         // This shouldn't change
         this.ballImageSize = 100;
-        this.joeImageWidth = 50;
-        this.joeImageHeight = 100;
+        this.joeImageWidth = 79;
+        this.joeImageHeight = 110;
+        this.birdImageWidth = 76;
+        this.birdImageHeight = 96;
+
+        this.shipImageWidth = 438;
+        this.shipImageHeight = 161;
 
         this.ball = null;
         this.ballInitialRotation = 1;
         this.ballMinimumRotation = 30;
         this.ballMaximumRotation = 300;
         this.ballScale = .75;
-        this.ballStartOffset = 10;
+        this.ballStartOffset = 5;
         this.ballStartY = 100;
 
         this.joe = null;
-        this.joeScale = .75;
+        this.joeScale = .9;
+        this.joeBoundsScale = .5;
 
         this.cursors = null;
         this.groundHeight = 100;
 
-        this.scoreText = null;
         this.lastScoreText = null;
         this.highscoreText = null;
         var muted = false;
 
-        this.fontFamily = 'ponde';
-        this.fontColor = "#000";
-        this.textStyle = { color: this.fontColor, fontFamily: this.fontFamily }
+        this.fontFamily = 'goth';
+        this.fontSize = 24;
+        this.fontColor = "#004780";
+        this.textStyle = { color: this.fontColor, fontFamily: this.fontFamily, fontSize: this.fontSize }
 
         this.lastScore = 0;
         this.gameStarted = false;
 
         this.birdSpeed = 60;
+
+        this.minShipTimer = 300;
+        this.maxShipTimer = 3000;
+        this.ship1Timer = Math.floor(Math.random() * this.maxShipTimer) + this.minShipTimer;
+        this.ship2Timer = Math.floor(Math.random() * this.maxShipTimer) + this.minShipTimer;
+        this.ship1Speed = -15;
+        this.ship2Speed = -10;
 
         this.resetGame();
     }
@@ -60,15 +73,18 @@ export default class Scene1 extends Phaser.Scene {
 
     incrementDifficulty() {
         this.speed += 15;
-        this.ballBounciness += .01;
-        //this.ballVelocityAddition += .1;
+
+        //Bounceiness > 1 leads to forever bounce
+        if (this.ballBounciness < 1) {
+             this.ballBounciness += .01;
+        }
     }
 
     lose() {
         if (this.score > 0) {
             this.lastScore = this.score;
             this.resetGame();
-            this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, this.getLosePhrase(), 0x000000, 2)
+            this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, this.getLosePhrase(), 0x004780, 2)
         }
 
         if (Math.abs(this.ball.body.deltaY()) > 1) {
@@ -84,14 +100,17 @@ export default class Scene1 extends Phaser.Scene {
         console.log("Preloading...");
 
         this.load.image('background', 'assets/background.png');
+        this.load.image('ship1', 'assets/ship2.png');
+        this.load.image('ship2', 'assets/ship1.png');
         this.load.image('ball', 'assets/ball.png');
-        this.load.spritesheet('joe_run', 'assets/joe_run.png', { frameWidth: this.joeImageWidth, frameHeight: 100 });
-        this.load.spritesheet('joe_stand', 'assets/joe_stand.png', { frameWidth: this.joeImageWidth, frameHeight: 100 });
-        this.load.spritesheet('joe_hit', 'assets/joe_hit.png', { frameWidth: this.joeImageWidth, frameHeight: 100 });
-        this.load.spritesheet('joe_run_hit', 'assets/joe_run_hit.png', { frameWidth: this.joeImageWidth, frameHeight: 100 });
-        this.load.image('ground', 'assets/joe.png');
+        this.load.spritesheet('joe_run', 'assets/joe_run.png', { frameWidth: this.joeImageWidth, frameHeight: this.joeImageHeight });
+        this.load.spritesheet('joe_stand', 'assets/joe_stand.png', { frameWidth: this.joeImageWidth, frameHeight: this.joeImageHeight });
+        this.load.spritesheet('joe_bounds', 'assets/joe_bounds.png', { frameWidth: this.joeImageWidth, frameHeight: this.joeImageHeight });
+        this.load.spritesheet('joe_hit', 'assets/joe_hit.png', { frameWidth: this.joeImageWidth, frameHeight: this.joeImageHeight });
+        this.load.spritesheet('joe_run_hit', 'assets/joe_run_hit.png', { frameWidth: this.joeImageWidth, frameHeight: this.joeImageHeight });
         this.load.image('floor', 'assets/floor.png');
-        this.load.spritesheet('bird', 'assets/bird.png', { frameWidth: 100, frameHeight: 50 });
+        this.load.image('railing', 'assets/railing.png');
+        this.load.spritesheet('bird', 'assets/bird.png', { frameWidth: this.birdImageWidth, frameHeight: this.birdImageHeight });
 
         this.load.audio('miss', 'assets/miss.mp3');
         this.load.audio('bounce', 'assets/bounce.mp3');
@@ -125,24 +144,36 @@ export default class Scene1 extends Phaser.Scene {
         this.anims.create({
             key: 'joe_run',
             frames: this.anims.generateFrameNames('joe_run'),
-            frameRate: 10,
+            frameRate: 7,
             repeat: -1
         });
 
         this.anims.create({
             key: 'joe_run_hit',
             frames: this.anims.generateFrameNames('joe_run_hit'),
-            frameRate: 10,
+            frameRate: 7,
             repeat: -1
         });
 
         this.joe.setImmovable();
         this.joe.setCollideWorldBounds(true);
         this.joe.setScale(this.joeScale);
+
+        this.joeBounds = this.physics.add.sprite(this.joe.x, this.joe.y, 'joe_bounds');
+        this.joeBounds.setScale(this.joeBoundsScale);
+        this.joeBounds.setCollideWorldBounds(true);
+        this.joeBounds.setImmovable();
     }
 
     createScenery() {
         this.add.sprite(this.sys.game.config.width / 2, this.sys.game.config.height / 2, 'background');
+        this.ship1 = this.physics.add.sprite(900, 400, 'ship1');
+        this.ship2 = this.physics.add.sprite(1500, 420, 'ship2');
+        this.ship1.x = this.sys.game.config.width + this.ship1.body.width / 2;
+        this.ship2.x = this.sys.game.config.width + this.ship2.body.width / 2;
+
+        this.add.sprite(this.sys.game.config.width / 2, 485, 'railing');
+
         this.bird = this.physics.add.sprite(this.sys.game.config.width + 100, 100, 'bird');
         var flyAnimation = this.anims.create({
             key: 'fly',
@@ -181,15 +212,16 @@ export default class Scene1 extends Phaser.Scene {
     }
 
     createScoreText() {
-        this.scoreText = this.add.text(10, 10, "Score: 0", this.textStyle);
-        this.lastScoreText = this.add.text(175, 10, "Last score: 0", this.textStyle);
+        this.scoreText = this.add.text(140, 165, "000", { fontFamily: 'goth', fontColor: "#000", fontSize: 150, align: "center" });
+        this.lastScoreText = this.add.text(10, 10, "Last score: 0", this.textStyle);
         this.highscoreText = this.add.text(this.sys.game.config.width - 190, 10, "Highscore: " + localStorage.getItem('highscore'), this.textStyle);
         this.highscoreText.width = 400;
         this.highscoreText.setAlign("right");
+        this.scoreText.setVisible(false);
     }
     
     createGameStartText() {
-        this.gameStartText = this.add.text(this.sys.game.config.width / 2 - 150, this.sys.game.config.height / 2 - 50, "Keep the ball in the air\n\nPress any key to start", this.textStyle);
+        this.gameStartText = this.add.text(this.sys.game.config.width / 2 - 140, this.sys.game.config.height / 2 - 50, "Keep the ball in the air\n\nPress any key to start", this.textStyle);
         this.gameStartText.setAlign("center");
     }
 
@@ -200,7 +232,7 @@ export default class Scene1 extends Phaser.Scene {
         var joeCenter = this.joe.x;
         var ballCenter = this.ball.x;
 
-        var contactArea = (this.joe.width + (2 * this.ball.width) / 2);
+        var contactArea = (this.joeBounds.width + (2 * this.ball.width) / 2);
 
         var offCenter = Math.abs(joeCenter - ballCenter);
         var percentOffCenter = offCenter / contactArea;
@@ -212,6 +244,9 @@ export default class Scene1 extends Phaser.Scene {
         xVelocity += Math.abs(this.joe.body.velocity.x * this.joeVelocityAddition);
 
         xVelocity *= (ballCenter < joeCenter ? -1 : 1);
+        if (xVelocity < 1) {
+            xVelocity = 5;
+        }
 
         this.ball.setVelocity(xVelocity, yVelocity);
 
@@ -225,14 +260,14 @@ export default class Scene1 extends Phaser.Scene {
             if (!this.beatHighscore) {
                 this.scoreSound.play();
                 this.beatHighscore = true;
-                this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, "Highscore!", 0x013220, 2);
+                this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, "Highscore!", 0x004780, 2);
             }
         }
 
         this.bounceSound.play();
         this.hittingTimer = 10;
 
-        this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, '+1', 0x000000, 1);
+        this.createFloatingText(this.joe.x, this.joe.y - this.joe.height / 2, '+1', 0x004780, 1);
     }
 
     saveHighscore(score) {
@@ -241,7 +276,7 @@ export default class Scene1 extends Phaser.Scene {
     }
 
     createFloatingText(x, y, message, color, level) {
-        let animation = this.add.text(x - (message.length * 6), y, message, { fontFamily: this.fontFamily }).setTint(color);
+        let animation = this.add.text(x - (message.length * 4), y, message, { fontFamily: this.fontFamily }).setTint(color);
         this.add.tween({
             targets: animation,
             duration: 750,
@@ -269,14 +304,14 @@ export default class Scene1 extends Phaser.Scene {
         });
 
         this.createScenery();
-        this.createBall();
+        this.createScoreText();
         this.createPlayer();
+        this.createBall();
         this.createBounds();
         this.createSounds();
-        this.createScoreText();
         this.createGameStartText();
 
-        this.physics.add.collider(this.ball, this.joe, () => this.onBounce());
+        this.physics.add.collider(this.ball, this.joeBounds, () => this.onBounce());
 
         var muted = localStorage.getItem('muted');
         if (muted == null) {
@@ -307,21 +342,33 @@ export default class Scene1 extends Phaser.Scene {
     }
 
     update() {
+
+        
+
         if (this.gameStarted) {
 
             this.joe.setVelocity(0);
+            this.joeBounds.setVelocity(0);
             this.ball.setBounce(this.ballBounciness);
+            this.scoreText.setVisible(true);
 
             this.hittingTimer--;
             var runAnimation = this.hittingTimer <= 0 ? 'joe_run' : 'joe_run_hit';
             var standAnimation = this.hittingTimer <= 0 ? 'joe_stand' : 'joe_hit';
 
             if (this.cursors.left.isDown) {
-                this.joe.setVelocityX(-this.joeSpeed);
+                if (this.joe.x - this.joe.width/2 > 0) {
+                    this.joe.setVelocityX(-this.joeSpeed);
+                    this.joeBounds.setVelocityX(-this.joeSpeed);
+                }
+                
                 this.joe.anims.play(runAnimation, true);
                 this.joe.flipX = true;
             } else if (this.cursors.right.isDown) {
-                this.joe.setVelocityX(this.joeSpeed);
+                if (this.joe.x + this.joe.width / 2 < this.sys.game.config.width) {
+                    this.joe.setVelocityX(this.joeSpeed);
+                    this.joeBounds.setVelocityX(this.joeSpeed);
+                }
                 this.joe.anims.play(runAnimation, true);
                 this.joe.flipX = false;
             } else {
@@ -336,7 +383,37 @@ export default class Scene1 extends Phaser.Scene {
                 this.bird.x = this.sys.game.config.width + 100;
             }
 
-            this.scoreText.text = `Score: ${this.score}`
+            if (this.ship1.x + this.ship1.body.width / 2 < 0) {
+                this.ship1.x = this.sys.game.config.width + this.ship1.body.width / 2;
+                this.ship1.setVelocityX(0);
+            }
+
+            if (this.ship2.x + this.ship2.body.width / 2 < 0) {
+                this.ship2.x = this.sys.game.config.width + this.ship2.body.width / 2;
+                this.ship2.setVelocityX(0);
+            }
+
+            if (this.ship1Timer-- < 0) {
+                this.ship1Timer = Math.floor(Math.random() * this.maxShipTimer) + this.minShipTimer;
+                this.ship1.setVelocityX(this.ship1Speed);
+            }
+
+            if (this.ship2Timer-- < 0) {
+                this.ship2Timer = Math.floor(Math.random() * this.maxShipTimer) + this.minShipTimer;
+                this.ship2.setVelocityX(this.ship2Speed);
+            }
+
+
+            // Prevent ball leaving the field
+            if (this.ball.x + (this.ball.body.width / 2) > this.sys.game.config.width) {
+                this.ball.x = this.sys.game.config.width - (this.ball.body.width / 2);
+            }
+
+            if (this.ball.x - (this.ball.body.width / 2) < 0) {
+                this.ball.x = this.ball.body.width / 2;
+            }
+
+            this.scoreText.text = `${this.score.toString().padStart(3, '0')}`
             this.lastScoreText.text = `Last Score: ${this.lastScore}`
             this.highscoreText.text = `Highscore: ${this.highscore}`
         } else {
